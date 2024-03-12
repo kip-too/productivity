@@ -1,0 +1,31 @@
+name: todo_list_app
+description: "A new Flutter project."
+publish_to: 'none'
+version: 0.1.0
+
+environment:
+  sdk: '>=3.2.6 <4.0.0'
+
+dependencies:
+  flutter:
+    sdk: flutter
+  flutter_riverpod: ^2.5.1
+  path: ^1.8.3
+  path_provider: ^2.1.2
+  sqflite: ^2.3.2
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^2.0.0
+
+flutter:
+  uses-material-design: true
+  fonts:
+    - family: Kalam
+      fonts:
+        - asset: fonts/Kalam-Regular.ttf
+        - asset: fonts/Kalam-Bold.ttf
+          weight: 700
+        - asset: fonts/Kalam-Light.ttf
+          style: italic
