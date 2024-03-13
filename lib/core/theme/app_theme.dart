@@ -4,17 +4,33 @@ class AppThemes {
   static ThemeData lightTheme = ThemeData(
     brightness: Brightness.light,
     primaryColor: Colors.blue,
-    fontFamily: 'Kalam', // Set font family to Kalam
-    // Define your light theme properties here
-    // Example: textTheme, etc.
+    fontFamily: 'Kalam',
+    textTheme: const TextTheme(
+      headlineLarge: TextStyle(
+        fontSize: 32.0,
+        fontWeight: FontWeight.bold,
+      ),
+      bodyLarge: TextStyle(
+        fontSize: 16.0,
+      ),
+    ),
   );
 
   static ThemeData darkTheme = ThemeData(
     brightness: Brightness.dark,
     primaryColor: Colors.indigo,
-    fontFamily: 'Kalam', // Set font family to Kalam
-    // Define your dark theme properties here
-    // Example: textTheme, etc.
+    fontFamily: 'Kalam',
+    textTheme: const TextTheme(
+      headlineLarge: TextStyle(
+        fontSize: 32.0,
+        fontWeight: FontWeight.bold,
+        color: Colors.white, // Adjust text color for dark theme
+      ),
+      bodyLarge: TextStyle(
+        fontSize: 16.0,
+        color: Colors.white70, // Adjust text color for dark theme
+      ),
+    ),
   );
 
   // Function to get the current theme based on the isDarkMode boolean

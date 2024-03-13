@@ -20,7 +20,6 @@ class TodoDatabaseHelper {
 
   Future<Database> _initDatabase() async {
     final String path = join(await getDatabasesPath(), 'todo.db');
-    log("Databasepath : ${path}");
 
     // Check if the database file exists
     if (!(await databaseExists(path))) {
@@ -56,7 +55,6 @@ class TodoDatabaseHelper {
   Future<List<Map<String, dynamic>>> fetchTodos() async {
     final Database db = await database;
     final todos = await db.query('todo');
-    log('Todos: $todos');
 
     // Convert taskDone values from integer to boolean
     return todos.map((todo) => {
@@ -68,8 +66,18 @@ class TodoDatabaseHelper {
 
   Future<int> updateTodo(Map<String, dynamic> todo) async {
     final Database db = await database;
-    return await db.update('todo', todo, where: 'id = ?', whereArgs: [todo['id']]);
+
+    // Extract the todo ID and remove it from the todo map
+    final int id = todo['id'];
+    todo.remove('id');
+
+    // Convert the taskDone boolean value to an integer
+    todo['taskDone'] = todo['taskDone'] == true ? 1 : 0;
+
+    // Perform the update operation
+    return await db.update('todo', todo, where: 'id = ?', whereArgs: [id]);
   }
+
 
   Future<int> deleteTodo(int id) async {
     final Database db = await database;

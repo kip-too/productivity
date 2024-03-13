@@ -1,65 +1,112 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import '../../../../core/theme/app_theme.dart';
+import 'package:todo_list_app/core/constants/supabase_keys.dart';
 import '../providers/todo_providers.dart';
 import '../widgets/add_todo_button.dart';
 import '../widgets/todo_list_tile.dart';
+import 'todo_detail_page.dart';
 
 class TodoListPage extends ConsumerWidget {
   const TodoListPage({Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final isDarkMode = ref.watch(isDarkModeProvider);
-    final ThemeData currentTheme = AppThemes.getCurrentTheme(isDarkMode);
+    ref.watch(todoListNotifierProvider.notifier).loadTodos();
 
-    return MaterialApp(
-      theme: currentTheme,
-      home: Scaffold(
-        appBar: AppBar(
-          centerTitle: true,
-          title: const Text("ToDo List"),
-          actions: [
-            IconButton(
-              icon: Icon(ref.read(isDarkModeProvider) ? Icons.light_mode : Icons.dark_mode),
-              onPressed: () {
-                ref.read(isDarkModeProvider.notifier).toggleTheme();
-              },
-            ),
-          ],
+    return Scaffold(
+      appBar: AppBar(
+        centerTitle: true,
+        title: const Text("ToDo List"),
+        leading: Builder(
+          builder: (context) =>
+              IconButton(
+                icon: const Icon(Icons.menu),
+                onPressed: () => Scaffold.of(context).openDrawer(),
+              ),
         ),
-        body: _buildTodoList(ref),
-        floatingActionButton: const AddTodoButton(),
+        actions: [
+          IconButton(
+            onPressed: () =>
+                ref.read(themeModeProvider.notifier).update((state) => state ==
+                    ThemeMode.light ? ThemeMode.dark : ThemeMode.light),
+            icon: Icon(Theme
+                .of(context)
+                .brightness == Brightness.light ? Icons.dark_mode : Icons
+                .light_mode), // Access theme using Theme.of(context)
+          ),
+        ],
+      ),
+      drawer: _buildLogoutDrawer(context, ref),
+      body: _buildTodoList(ref),
+      floatingActionButton: const AddTodoButton(),
+    );
+  }
+
+  Widget _buildLogoutDrawer(BuildContext context, WidgetRef ref) {
+    return Drawer(
+      child: ListView(
+        children: [
+          // Add other drawer items here if needed
+          ListTile(
+            title: const Text('Logout'),
+            trailing: const Icon(Icons.logout),
+            onTap: () async {
+              final logoutResult = await _logout(ref);
+              if (logoutResult) {
+                // Navigate to login page or handle logout success
+                Navigator.of(context).popUntil((route) =>
+                route.isFirst); // Close drawer and pop to login
+              } else {
+                // Handle logout failure (e.g., show an error message)
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(
+                    content: Text('Logout failed! Please try again.'),
+                  ),
+                );
+              }
+            },
+          ),
+        ],
       ),
     );
   }
 
   Widget _buildTodoList(WidgetRef ref) {
-    final todosAsync = ref.watch(todoListProvider);
-    return Consumer(
-      builder: (context, WidgetRef ref, child) {
-        return todosAsync.when(
-          data: (todos) {
-            print(todos);
-            return ListView.builder(
-              itemCount: todos.length,
-              itemBuilder: (context, index) {
-                return TodoListTile(
-                  title: todos[index]['title'],
-                  description: todos[index]['description'],
-                  taskDone: todos[index]['taskDone'],
-                  onCheckboxChanged: (value) {
-                    // TODO: Update todo state
-                  },
-                );
-              },
-            );
+    final todos = ref.watch(todoListNotifierProvider);
+    return ListView.builder(
+      itemCount: todos.length,
+      itemBuilder: (context, index) {
+        final todo = todos[index];
+        return GestureDetector(
+          onTap: () {
+            _navigateToDetailPage(context, todo);
           },
-          loading: () => const Center(child: CircularProgressIndicator()),
-          error: (error, stackTrace) => Text('Error fetching todos: $error'),
+          child: TodoListTile(
+            title: todo['title'],
+            description: todo['description'],
+            taskDone: todo['taskDone'],
+          ),
         );
       },
     );
   }
-}
 
+  void _navigateToDetailPage(BuildContext context, Map<String, dynamic> todo) {
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => TodoDetailPage(todo: todo),
+      ),
+    );
+  }
+
+  Future<bool> _logout(WidgetRef ref) async {
+    try {
+      await client.auth.signOut();
+      return true; // Logout successful
+    } catch (error) {
+      print(error);
+      return false; // Logout failed
+    }
+  }
+}
