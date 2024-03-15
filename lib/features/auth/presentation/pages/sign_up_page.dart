@@ -52,6 +52,8 @@ class _SignUpPageState extends State<SignUpPage> {
                     AuthField(
                       hintText: 'Email',
                       controller: emailController,
+                      isEmailField:
+                          true, // Set this to true for email validation
                     ),
                     const SizedBox(
                       height: 20,
@@ -59,6 +61,9 @@ class _SignUpPageState extends State<SignUpPage> {
                     AuthField(
                       hintText: "Password",
                       controller: passwordController,
+                      isObscureText: true,
+                      isPasswordField:
+                          true, // Set this to true for password validation
                     ),
                   ],
                 ),
@@ -66,30 +71,44 @@ class _SignUpPageState extends State<SignUpPage> {
               const SizedBox(
                 height: 20,
               ),
-              AuthGradientButton(
-                buttonText: "Sign Up",
-                onPressed: () async {
-                  setState(() {
-                    isLoading = true;
-                  });
-                  dynamic userValue = await createUser(
-                    email: emailController.text,
-                    password: passwordController.text,
-                  );
-                  setState(() {
-                    isLoading = false;
-                  });
-                  if (userValue != null) {
-                    Navigator.pushNamed(context, '/');
-                  } else {
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      SnackBar(
-                        content: const Text("Invalid email or password!"),
+              isLoading
+                  ? Container(
+                      height: 30,
+                      width: 30,
+                      decoration: BoxDecoration(
+                          color: Colors.white,
+                          borderRadius: BorderRadius.circular(10.0)),
+                      child: const Center(
+                        child: CircularProgressIndicator(),
                       ),
-                    );
-                  }
-                },
-              ),
+                    )
+                  : AuthGradientButton(
+                      buttonText: "Sign Up",
+                      onPressed: () async {
+                        if (formKey.currentState!.validate()) {
+                          setState(() {
+                            isLoading = true;
+                          });
+                          dynamic userValue = await createUser(
+                            email: emailController.text,
+                            password: passwordController.text,
+                          );
+                          setState(() {
+                            isLoading = false;
+                          });
+                          if (userValue != null) {
+                            Navigator.pushNamed(context, '/');
+                          } else {
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              SnackBar(
+                                content:
+                                    const Text("Invalid email or password!"),
+                              ),
+                            );
+                          }
+                        }
+                      },
+                    ),
               const SizedBox(
                 height: 10,
               ),
@@ -119,4 +138,3 @@ class _SignUpPageState extends State<SignUpPage> {
     );
   }
 }
-

@@ -18,21 +18,20 @@ class TodoListPage extends ConsumerWidget {
         centerTitle: true,
         title: const Text("ToDo List"),
         leading: Builder(
-          builder: (context) =>
-              IconButton(
-                icon: const Icon(Icons.menu),
-                onPressed: () => Scaffold.of(context).openDrawer(),
-              ),
+          builder: (context) => IconButton(
+            icon: const Icon(Icons.menu),
+            onPressed: () => Scaffold.of(context).openDrawer(),
+          ),
         ),
         actions: [
           IconButton(
-            onPressed: () =>
-                ref.read(themeModeProvider.notifier).update((state) => state ==
-                    ThemeMode.light ? ThemeMode.dark : ThemeMode.light),
-            icon: Icon(Theme
-                .of(context)
-                .brightness == Brightness.light ? Icons.dark_mode : Icons
-                .light_mode), // Access theme using Theme.of(context)
+            onPressed: () => ref.read(themeModeProvider.notifier).update(
+                (state) => state == ThemeMode.light
+                    ? ThemeMode.dark
+                    : ThemeMode.light),
+            icon: Icon(Theme.of(context).brightness == Brightness.light
+                ? Icons.dark_mode
+                : Icons.light_mode), // Access theme using Theme.of(context)
           ),
         ],
       ),
@@ -54,8 +53,8 @@ class TodoListPage extends ConsumerWidget {
               final logoutResult = await _logout(ref);
               if (logoutResult) {
                 // Navigate to login page or handle logout success
-                Navigator.of(context).popUntil((route) =>
-                route.isFirst); // Close drawer and pop to login
+                Navigator.pushNamedAndRemoveUntil(
+                    context, '/login', (route) => false);
               } else {
                 // Handle logout failure (e.g., show an error message)
                 ScaffoldMessenger.of(context).showSnackBar(

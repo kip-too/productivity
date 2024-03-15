@@ -20,25 +20,25 @@ Future<void> main() async{
   );
 }
 class MainApp extends ConsumerWidget {
-  const MainApp({super.key});
+  const MainApp({Key? key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final ThemeMode themeMode = ref.watch(themeModeProvider);
-    return  MaterialApp(
+    final bool isLoggedIn = client.auth.currentSession != null;
+
+    return MaterialApp(
       themeMode: themeMode,
       darkTheme: AppThemes.darkTheme,
       theme: AppThemes.lightTheme,
       debugShowCheckedModeBanner: false,
-      initialRoute: client.auth.currentSession != null ? '/' : '/login',
+      initialRoute: isLoggedIn ? '/' : '/login', // Set initial route based on login status
       routes: {
-        '/' :(context) => const TodoListPage(),
-        '/signup':(context) => const SignUpPage(),
-        '/login':(context) => const LoginPage(),
-        '/onboarding':(context) => const OnboardingCarousel(),
+        '/': (context) => isLoggedIn ? const TodoListPage() : const LoginPage(),
+        '/signup': (context) => const SignUpPage(),
+        '/login': (context) => const LoginPage(),
+        '/onboarding': (context) => const OnboardingCarousel(),
       },
-
-      );
+    );
   }
 }
-

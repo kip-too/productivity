@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:todo_list_app/core/utils/auth_functions.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 
 import '../../../../core/theme/app_pallete.dart';
 import '../widgets/auth_field.dart';
@@ -16,7 +17,7 @@ class _LoginPageState extends State<LoginPage> {
   final emailController = TextEditingController();
   final passwordController = TextEditingController();
   final formKey = GlobalKey<FormState>();
-   bool isLoading = false;
+  bool isLoading = false;
 
   @override
   void dispose() {
@@ -53,6 +54,8 @@ class _LoginPageState extends State<LoginPage> {
                     AuthField(
                       hintText: 'Email',
                       controller: emailController,
+                      isEmailField:
+                          true, // Set this to true for email validation
                     ),
                     const SizedBox(
                       height: 20,
@@ -60,6 +63,8 @@ class _LoginPageState extends State<LoginPage> {
                     AuthField(
                       hintText: "Password",
                       controller: passwordController,
+                      isPasswordField:
+                          true, // Set this to true for password validation
                     ),
                   ],
                 ),
@@ -69,39 +74,46 @@ class _LoginPageState extends State<LoginPage> {
               ),
               isLoading
                   ? Container(
-                height: 30,
-                width: 30,
-                decoration: BoxDecoration(
-                    color: Colors.white,
-                    borderRadius: BorderRadius.circular(10.0)),
-                child: const Center(
-                  child: CircularProgressIndicator(),
-                ),
-              )
-                  : AuthGradientButton(
-                buttonText: "Login",
-                onPressed: () async {
-                  setState(() {
-                    isLoading = true;
-                  });
-                  dynamic loginValue = await userLogin(
-                    email: emailController.text,
-                    password: passwordController.text,
-                  );
-                  setState(() {
-                    isLoading = false;
-                  });
-                  if (loginValue != null) {
-                    Navigator.pushNamed(context, '/');
-                  } else {
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      SnackBar(
-                        content: const Text("Invalid email or password!"),
+                      height: 30,
+                      width: 30,
+                      decoration: BoxDecoration(
+                          color: Colors.white,
+                          borderRadius: BorderRadius.circular(10.0)),
+                      child: const Center(
+                        child: CircularProgressIndicator(),
                       ),
-                    );
-                  }
-                },
-              ),
+                    )
+                  : AuthGradientButton(
+                      buttonText: "Login",
+                      onPressed: () async {
+                        if (formKey.currentState!.validate()) {
+                          setState(() {
+                            isLoading = true;
+                          });
+                          dynamic loginValue = await userLogin(
+                            email: emailController.text,
+                            password: passwordController.text,
+                            context: context
+                          );
+                          setState(() {
+                            isLoading = false;
+                          });
+                          if (loginValue != null) {
+                            Navigator.pushNamed(context, '/');
+                          } else {
+                            Fluttertoast.showToast(
+                                msg: "Invalid email or password",
+                                toastLength: Toast.LENGTH_SHORT,
+                                gravity: ToastGravity.CENTER,
+                                timeInSecForIosWeb: 3,
+                                backgroundColor: Colors.white,
+                                textColor: Colors.red,
+                                fontSize: 16.0
+                            );
+                          }
+                        }
+                      },
+                    ),
               const SizedBox(height: 10),
               Row(
                 mainAxisAlignment: MainAxisAlignment.center,
